@@ -1,0 +1,153 @@
+<mat-sidenav-container class="sidenav-container" [style.marginTop.px]="0">
+    <mat-sidenav #tasknav class="snav" [mode]="'push'" position="end" fixedTopGap="64">
+        <div class="form-container">
+            <h2>{{selectedTaskId ? 'Edit task' : 'Create task'}}</h2>
+            <form class="form" [formGroup]="pform" (ngSubmit)="onFormSubmit()">
+                <mat-form-field class="form-group">
+                    <mat-label>Task name</mat-label>
+                    <input matInput placeholder="Write down the name of the task" formControlName="tname">
+                    <mat-error *ngIf="pform.get('tname').errors?.required || pform.get('tname').errors?.pattern || pform.get('tname').dirty || pform.get('tname').touched">
+                        Please enter task name
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="form-group">
+                    <mat-label>Task description</mat-label>
+                    <textarea matInput placeholder="Write down the description of the task" formControlName="tdesc"></textarea>
+                    <mat-error *ngIf="pform.get('tdesc').errors?.required || pform.get('tdesc').errors?.pattern || pform.get('tdesc').dirty || pform.get('tdesc').touched">
+                        Please enter task description
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="form-group">
+                    <mat-label>Task start date</mat-label>
+                    <input matInput [matDatepicker]="spicker" formControlName="sdate" [min]="startDate">
+                    <mat-datepicker-toggle matSuffix [for]="spicker"></mat-datepicker-toggle>
+                    <mat-datepicker #spicker></mat-datepicker>
+                    <mat-error *ngIf="pform.get('sdate').errors?.required || pform.get('sdate').errors?.pattern || pform.get('sdate').dirty || pform.get('sdate').touched">
+                        Please select task start date
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="form-group">
+					<mat-label>Task end date</mat-label>
+					<input matInput [matDatepicker]="epicker" formControlName="edate" [min]="pform.get('sdate').value || startDate">
+					<mat-datepicker-toggle matSuffix [for]="epicker"></mat-datepicker-toggle>
+					<mat-datepicker #epicker></mat-datepicker>
+					<mat-error *ngIf="pform.get('edate').errors?.required || pform.get('edate').errors?.pattern || pform.get('edate').dirty || pform.get('edate').touched">
+						Please select task end date
+					</mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="form-group">
+					<mat-label>Assigned to</mat-label>
+					<mat-select formControlName="asigned">
+                        <mat-option *ngFor="let user of allUsers" [value]="user.id">
+                            {{user.first_name +' '+ user.last_name}}
+                        </mat-option>
+                    </mat-select>
+					<mat-error *ngIf="pform.get('asigned').errors?.required || pform.get('asigned').errors?.pattern || pform.get('asigned').dirty || pform.get('asigned').touched">
+						Please select whom it will be assigned to
+					</mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="form-group">
+					<mat-label>Parent task</mat-label>
+					<mat-select formControlName="parent">
+                        <mat-option [value]="-1">No parent task</mat-option>
+                        <mat-option *ngFor="let ptask of parentTasks | matchesTask:(selectedTaskId || 0)" [value]="ptask.id">
+                            {{ptask.name}}
+                        </mat-option>
+                    </mat-select>
+					<mat-error *ngIf="pform.get('parent').errors?.required || pform.get('parent').errors?.pattern || pform.get('parent').dirty || pform.get('parent').touched">
+						Please select a task whiom it's belong to
+					</mat-error>
+                </mat-form-field>
+
+                <button mat-raised-button type="submit" class="btn button" color="primary">{{selectedTaskId ? 'Update task' : 'Create task'}}</button>
+            </form>
+        </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <div class="dashboard-container">
+            <div class="flex-container vertical-middle">
+                <div class="flexbox">
+                    <h2 class="main-heading">Project "{{ projectDetails.name }}" details</h2>
+                </div>
+                <div class="flexbox text-right">
+                    <button mat-button class="btn button" color="primary" [routerLink]="'/'">Back</button>
+                </div>
+            </div>
+            <div class="project">
+                <div class="flex-container">
+                    <div class="flexbox image">
+                        <div class="bg-image" *ngIf="projectDetails.avatar" [style.backgroundImage]="'url('+ path + projectDetails.avatar +')'"></div>
+                    </div>
+                    <div class="flexbox details">
+                        <h3 class="name">{{ projectDetails.name }}</h3>
+                        <div class="date">{{ customFormat(projectDetails.start_date) }} - {{ customFormat(projectDetails.end_date) }}</div>
+                        <p class="description">
+                            {{ projectDetails.description }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="sub-heading">All tasks</h3>
+            <ul class="tasks">
+                <li [ngClass]="{'done': task.completed}" *ngFor="let task of allTasks">
+                    <div class="flex-container vertical-middle">
+                        <div class="flexbox input">
+                            <label class="custom-input" data-type="checkbox">
+                                <input type="checkbox" name="tasks[]" [value]="task.id" [checked]="task.completed" (change)="toogleCompleted(task.id)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="flexbox details">
+                            <a class="anchor" [routerLink]="'/project/'+ projectId +'/task/'+ task.id">
+                                <div class="name">{{task.name}} <span>{{task.description}}</span></div>
+                                <span class="duration">{{customFormat(task.start_date)}} - {{customFormat(task.end_date)}}</span>
+                                <span class="assigned">- {{ task.asigned_to.first_name +" "+ task.asigned_to.last_name }}</span>
+                            </a>
+                        </div>
+                        <div class="flexbox buttons">
+                            <button mat-button class="btn button" color="primary" (click)="editTask(task, -1)">Edit</button>
+                            <button mat-button class="btn" color="warn" (click)="deleteTask(task)">Delete</button>
+                        </div>
+                    </div>
+
+                    <div class="subtask" *ngIf="task.subtasks.length > 0">
+                        <h3 class="sub-heading">Sub tasks</h3>
+                        <ul class="tasks">
+                            <li [ngClass]="{'done': stask.completed}" *ngFor="let stask of task.subtasks">
+                                <div class="flex-container vertical-middle">
+                                    <div class="flexbox input">
+                                        <label class="custom-input" data-type="checkbox">
+                                            <input type="checkbox" name="tasks[]" [value]="stask.id" [checked]="stask.completed" (change)="toogleCompleted(stask.id)">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flexbox details">
+                                        <a class="anchor" [routerLink]="'/project/'+ projectId +'/task/'+ stask.id">
+                                            <div class="name">{{stask.name}} <span>{{stask.description}}</span></div>
+                                            <span class="duration">{{customFormat(stask.start_date)}} - {{customFormat(stask.end_date)}}</span>
+                                            <span class="assigned">- {{ stask.asigned_to.first_name +" "+ stask.asigned_to.last_name }}</span>
+                                        </a>
+                                    </div>
+                                    <div class="flexbox buttons">
+                                        <button mat-button class="btn button" color="primary" (click)="editTask(stask, task.id)">Edit</button>
+                                        <button mat-button class="btn" color="warn" (click)="deleteTask(stask)">Delete</button>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+
+            <button id="button" mat-fab class="floating-button" color="primary" aria-label="Add task" (click)="openSideBar()">
+                <mat-icon>add</mat-icon>
+            </button>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

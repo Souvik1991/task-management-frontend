@@ -1,0 +1,55 @@
+<mat-sidenav-container *ngIf="loaded" class="sidenav-container" [style.marginTop.px]="0">
+    <mat-sidenav-content>
+        <div class="dashboard-container">
+            <div class="flex-container vertical-middle">
+                <div class="flexbox">
+                    <h2 class="main-heading">Task "{{ taskDetails.name }}" details</h2>
+                </div>
+                <div class="flexbox text-right">
+                    <button mat-button class="btn button" color="primary" [routerLink]="'/project/'+ projectId">Back</button>
+                </div>
+            </div>
+            
+            <ul class="tasks">
+                <li [ngClass]="{'done': taskDetails.completed}">
+                    <div class="flex-container vertical-middle">
+                        <div class="flexbox input">
+                            <label class="custom-input" data-type="checkbox">
+                                <input type="checkbox" name="tasks[]" [value]="taskDetails.id" [checked]="taskDetails.completed" (change)="toogleCompleted(taskDetails.id)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </div>
+                        <div class="flexbox details">
+                            <div class="name">{{taskDetails.name}} <span>{{taskDetails.description}}</span></div>
+                            <span class="duration">{{customFormat(taskDetails.start_date)}} - {{customFormat(taskDetails.end_date)}}</span>
+                            <span class="assigned">- {{ taskDetails.asigned_to.first_name +" "+ taskDetails.asigned_to.last_name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="subtask" *ngIf="taskDetails.subtasks.length > 0">
+                        <h3 class="sub-heading">Sub tasks</h3>
+                        <ul class="tasks">
+                            <li [ngClass]="{'done': stask.completed}" *ngFor="let stask of taskDetails.subtasks">
+                                <div class="flex-container vertical-middle">
+                                    <div class="flexbox input">
+                                        <label class="custom-input" data-type="checkbox">
+                                            <input type="checkbox" name="tasks[]" [value]="stask.id" [checked]="stask.completed" (change)="toogleCompleted(stask.id)">
+                                            <span class="checkmark"></span>
+                                        </label>
+                                    </div>
+                                    <div class="flexbox details">
+                                        <a class="anchor" target="_blank" [routerLink]="'/project/'+ projectId +'/task/'+ stask.id">
+                                            <div class="name">{{stask.name}} <span>{{stask.description}}</span></div>
+                                            <span class="duration">{{customFormat(stask.start_date)}} - {{customFormat(stask.end_date)}}</span>
+                                            <span class="assigned">- {{ stask.asigned_to.first_name +" "+ stask.asigned_to.last_name }}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </mat-sidenav-content>
+</mat-sidenav-container>

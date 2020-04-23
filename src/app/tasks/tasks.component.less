@@ -1,0 +1,65 @@
+.tasks{
+    li{
+        background: #ffffff;
+        margin-bottom: 10px;
+        border-radius: 2px;
+        border: 1px solid #ececec;
+        padding: 10px;
+        .input{
+            max-width: 20px
+        }
+        .details{
+            .name{
+                font-weight: 500;
+                line-height: 1;
+                margin-bottom: 3px;
+                white-space: nowrap;
+                overflow: hidden;
+                max-width: 700px;
+                text-overflow: ellipsis;
+                color: #444444;
+                span{
+                    color: #969595;
+                    font-weight: 100;
+                    margin-left: 5px;
+                }
+            }
+            .duration{
+                color: #969595;
+                font-size: .85em;
+                line-height: 1;
+            }
+            .assigned{
+                line-height: 1;
+                font-size: .85em;
+                margin-left: 5px;
+                color: #444444;
+            }
+        }
+        .buttons{
+            max-width: 140px;
+        }
+        .subtask{
+            border: 1px solid #ececec;
+            border-radius: 2px;
+            margin-top: 10px;
+            padding: 10px;
+            .sub-heading{
+                font-size: .9em;
+                font-weight: 500;
+                line-height: 1;
+                margin-bottom: 10px;
+            }
+        }
+    }
+    li:last-child{
+        margin-bottom: 0;
+    }
+    li.done{
+        >div>.details{
+            .name{
+                text-decoration: line-through;
+            }
+        }
+    }
+}

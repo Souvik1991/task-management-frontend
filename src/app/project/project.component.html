@@ -1,0 +1,88 @@
+<mat-sidenav-container class="sidenav-container" [style.marginTop.px]="0">
+    <mat-sidenav #sidenav class="snav" [mode]="'push'" position="end" fixedTopGap="64">
+        <div class="form-container">
+            <h2>{{ selectedProjectId === undefined ? 'Create project' : 'Update project' }}</h2>
+            <form class="form" [formGroup]="pform" enctype="multipart/form-data" (ngSubmit)="onFormSubmit()">
+                <mat-form-field class="form-group">
+                    <mat-label>Project name</mat-label>
+                    <input matInput placeholder="Write down the name of the project" formControlName="pname">
+                    <mat-error *ngIf="pform.get('pname').errors?.required || pform.get('pname').errors?.pattern || pform.get('pname').dirty || pform.get('pname').touched">
+                        Please enter project name
+                    </mat-error>
+                </mat-form-field>
+                
+                <mat-form-field class="form-group">
+                    <mat-label>Project description</mat-label>
+                    <textarea matInput placeholder="Write down the description of the project" formControlName="pdesc"></textarea>
+                    <mat-error *ngIf="pform.get('pdesc').errors?.required || pform.get('pdesc').errors?.pattern || pform.get('pdesc').dirty || pform.get('pdesc').touched">
+                        Please enter project description
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="form-group">
+                    <mat-label>Project start date</mat-label>
+                    <input matInput [matDatepicker]="spicker" formControlName="sdate" [min]="startDate">
+                    <mat-datepicker-toggle matSuffix [for]="spicker"></mat-datepicker-toggle>
+                    <mat-datepicker #spicker></mat-datepicker>
+                    <mat-error *ngIf="pform.get('sdate').errors?.required || pform.get('sdate').errors?.pattern || pform.get('sdate').dirty || pform.get('sdate').touched">
+                        Please select project start date
+                    </mat-error>
+                </mat-form-field>
+
+                <mat-form-field class="form-group">
+					<mat-label>Project end date</mat-label>
+					<input matInput [matDatepicker]="epicker" formControlName="edate" [min]="pform.get('sdate').value">
+					<mat-datepicker-toggle matSuffix [for]="epicker"></mat-datepicker-toggle>
+					<mat-datepicker #epicker></mat-datepicker>
+					<mat-error *ngIf="pform.get('edate').errors?.required || pform.get('edate').errors?.pattern || pform.get('edate').dirty || pform.get('edate').touched">
+						Please select project end date
+					</mat-error>
+                </mat-form-field>
+
+				<div class="form-group custom">
+					<div class="label">
+						<label for="avatar">Avatar</label>
+					</div>
+					<input type="file" id="avatar" (change)="onFileSelected($event)" accept="image/x-png,image/gif,image/jpeg,image/jpg"/>
+					<div class="error" *ngIf="fileSelected === 0">Choose a avatar image</div>
+				</div>
+
+				<button mat-raised-button type="submit" class="btn button" color="primary">{{ selectedProjectId === undefined ? 'Create project' : 'Update project' }}</button>
+            </form>
+        </div>
+    </mat-sidenav>
+    <mat-sidenav-content>
+        <div class="dashboard-container">
+            <h2 class="main-heading">All Project</h2>
+            <ul class="projects-list">
+                <li class="project" *ngFor="let project of allProjects">
+					<div class="flex-container">
+						<div class="flexbox image">
+                            <a class="anchor" [routerLink]="'/project/'+ project.id +'/'">
+                                <div class="bg-image" [style.backgroundImage]="'url('+ path + project.avatar +')'"></div>
+                            </a>
+							<!-- <img [src]="path + project.avatar" [alt]="project.name | uppercase"> -->
+						</div>
+						<div class="flexbox details">
+							<a class="anchor" [routerLink]="'/project/'+ project.id +'/'">
+								<h3 class="name">{{ project.name }}</h3>
+								<div class="date">{{ customFormat(project.start_date) }} - {{ customFormat(project.end_date) }}</div>
+								<p class="description">
+									{{ project.description }}
+								</p>
+							</a>
+							<div class="flex-container flex-start no-margin">
+								<button mat-raised-button class="btn button" color="primary" (click)="editProject(project)">Edit</button>
+								<button mat-raised-button class="btn" color="warn" (click)="deleteProject(project)">Delete</button>
+							</div>
+						</div>
+					</div>
+                </li>
+            </ul>
+        </div>
+
+        <button id="button" mat-fab class="floating-button" color="primary" aria-label="Create a project" (click)="openSideBar()">
+            <mat-icon>add</mat-icon>
+        </button>
+    </mat-sidenav-content>
+</mat-sidenav-container>
