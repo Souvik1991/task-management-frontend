@@ -104,12 +104,8 @@ export class ProjectComponent implements OnInit {
 		
 		if(this.selectedProjectId){
 			this.HttpService.updateProject(d, this.selectedProjectId).subscribe((res: Project) => {
-				this.logoFile = undefined;
-				this.selectedProjectId = undefined;
 				this.startDate = new Date();
-				this.sidenav.toggle();
-				this.pform.markAsUntouched();
-				this.pform.reset();
+				this.openSideBar();
 				this.snackBar.open('A new project has been successfully created.', 'okay', {duration: 5000, horizontalPosition: 'left', verticalPosition: 'bottom'});
 				this.getProjects();
 			}, (error) => {
@@ -118,10 +114,7 @@ export class ProjectComponent implements OnInit {
 		}
 		else{
 			this.HttpService.createProject(d).subscribe((res: Project) => {
-				this.sidenav.toggle();
-				this.pform.markAsUntouched();
-				this.pform.reset();
-				this.logoFile = undefined;
+				this.openSideBar();
 				this.snackBar.open('A new project has been successfully created.', 'okay', {duration: 5000, horizontalPosition: 'left', verticalPosition: 'bottom'});
 				this.getProjects();
 			}, (error) => {
@@ -137,6 +130,8 @@ export class ProjectComponent implements OnInit {
 	}
 
 	openSideBar(){
+		this.logoFile = undefined;
+		this.selectedProjectId = undefined;
 		this.pform.markAsUntouched();
 		this.pform.reset();
 		this.sidenav.toggle();
